@@ -3,6 +3,9 @@ project(cadmesh)
 
 include(FindPkgConfig)
 
+# Add find modules to module path (for Findassimp.cmake)
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
+
 # GEANT4
 option(WITH_GEANT4_UIVIS "Build example with Geant4 UI and Vis drivers" ON)
 if(WITH_GEANT4_UIVIS)
