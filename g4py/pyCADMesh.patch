@@ -1,0 +1,12 @@
+diff --git source/CMakeLists.txt source/CMakeLists.txt
+index 0948442..a7cb96d 100644
+--- source/CMakeLists.txt
++++ source/CMakeLists.txt
+@@ -26,6 +26,7 @@ add_subdirectory(visualization)
+ add_subdirectory(graphics_reps)
+ add_subdirectory(physics_lists)
+ add_subdirectory(gdml)
++add_subdirectory(cadmesh)
+ 
+ if (${PYTHON_VERSION_MAJOR} MATCHES "2")
+   add_subdirectory(python)
