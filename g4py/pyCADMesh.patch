@@ -10,3 +10,15 @@ index 0948442..a7cb96d 100644
  
  if (${PYTHON_VERSION_MAJOR} MATCHES "2")
    add_subdirectory(python)
+diff --git source/python/__init__.py source/python/__init__.py
+index 0221f54..01e90f7 100644
+--- source/python/__init__.py
++++ source/python/__init__.py
+@@ -31,6 +31,7 @@ from G4gdml import *
+ from G4graphics_reps import *
+ from hepunit import *
+ from colortable import *
++from CADMesh import *
+ 
+ def print_version():
+   print """=============================================================
