@@ -37,10 +37,11 @@ using namespace boost::python;
 // module definition
 // ====================================================================
 void export_CADMesh();
-
+void export_G4AssemblyVolume();
 
 BOOST_PYTHON_MODULE(CADMesh)
 {
   export_CADMesh();
+  export_G4AssemblyVolume();
 }
 

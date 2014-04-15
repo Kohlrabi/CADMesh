@@ -7,6 +7,7 @@ set(_TARGET pyCADMesh)
 add_library (
   ${_TARGET} SHARED
   pyCADMesh.cc
+  pyG4AssemblyVolume.cc
   pymodCADMesh.cc
 )
 

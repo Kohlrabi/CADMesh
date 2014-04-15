@@ -9,9 +9,16 @@ using namespace boost::python;
 // ====================================================================
 // function overloads
 // ====================================================================
+
+namespace pyCADMesh {
+
 G4VSolid*	(CADMesh::*TessellatedMesh_int)(int)	= &CADMesh::TessellatedMesh;
 G4VSolid*	(CADMesh::*TessellatedMesh_none)()	= &CADMesh::TessellatedMesh;
 G4VSolid*	(CADMesh::*TessellatedMesh_g4string)(G4String)	= &CADMesh::TessellatedMesh;
+
+}
+
+using namespace pyCADMesh;
 
 // ====================================================================
 // module definition
