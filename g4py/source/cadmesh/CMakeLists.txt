@@ -18,7 +18,6 @@ SET( cadmesh_LIBRARY_DIR "${cadmesh_DIR}/../../../lib")
 INCLUDE_DIRECTORIES(${cadmesh_INCLUDE_DIR})
 FIND_LIBRARY(cadmesh_LIBRARY cadmesh)
 SET( cadmesh_libs ${cadmesh_libs} ${cadmesh_LIBRARY})
-SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNOVCGLIB" )
 
 set_target_properties(${_TARGET} PROPERTIES PREFIX "")
 set_target_properties(${_TARGET} PROPERTIES OUTPUT_NAME "CADMesh")

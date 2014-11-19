@@ -44,14 +44,6 @@ void export_CADMesh() {
     .def("get_tetrahedron_count",	&CADMesh::get_tetrahedron_count)
 #endif
 
-#ifndef NOVCGLIB
-    .def("TessellatedMesh", 	&CADMesh::TessellatedMesh, return_value_policy<manage_new_object>())
-    .def("GetSolid",    &CADMesh::GetSolid, return_value_policy<reference_existing_object>())
-    .def("MeshName",    &CADMesh::MeshName)
-    .def("MeshVertexNumber",    &CADMesh::MeshVertexNumber)
-    .def("SetVerbose",  &CADMesh::SetVerbose)
-#endif
-
 #ifndef NOASSIMP
     .def("TessellatedMesh", TessellatedMesh_int, return_value_policy<manage_new_object>())
     .def("TessellatedMesh", TessellatedMesh_none, return_value_policy<manage_new_object>())
