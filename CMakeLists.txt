@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(cadmesh)
 
 include(FindPkgConfig)
@@ -29,8 +29,9 @@ if(${WITH_SYS_TETGEN} MATCHES "ON")
     find_package(tetgen)
 else()
     ExternalProject_Add(
-        tetgen
+        tetgen_external
         SOURCE_DIR ${PROJECT_SOURCE_DIR}/external/tetgen
+        GIT_REPOSITORY https://github.com/christopherpoole/tetgen.git
         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
     )
     include_directories(${PROJECT_BINARY_DIR}/external/tetgen/include)
@@ -42,8 +43,10 @@ if(${WITH_SYS_ASSIMP} MATCHES "ON")
     find_package(assimp)
 else()
     ExternalProject_Add(
-        assimp 
+        assimp_external
         SOURCE_DIR ${PROJECT_SOURCE_DIR}/external/assimp
+        GIT_REPOSITORY https://github.com/assimp/assimp.git
+        GIT_TAG v3.1.1
         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
     )
     include_directories(${PROJECT_BINARY_DIR}/external/assimp/include)
@@ -52,21 +55,23 @@ endif()
 # CADMesh
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
+
 include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${CMAKE_INSTALL_PREFIX}/include)
 
 add_library(cadmesh "SHARED" ${sources} ${headers}) 
 
 if(${WITH_SYS_TETGEN} MATCHES "OFF")
-    add_dependencies(cadmesh tetgen)
+    add_dependencies(cadmesh tetgen_external)
 endif()
 
 if(${WITH_SYS_TETGEN} MATCHES "OFF")
-    add_dependencies(cadmesh assimp)
+    add_dependencies(cadmesh assimp_external)
 endif()
 
 target_link_libraries(cadmesh ${Geant4_LIBRARIES})
-target_link_libraries(cadmesh ${Tetgen_LIBRARIES})
-target_link_libraries(cadmesh ${Assimp_LIBRARIES})
+target_link_libraries(cadmesh -L${CMAKE_INSTALL_PREFIX}/lib tet)
+target_link_libraries(cadmesh assimp)
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cadmesh-config.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/cadmesh-config.cmake" @ONLY IMMEDIATE)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cadmesh-config.cmake" DESTINATION "lib/cmake/cadmesh-${CADMESH_VERSION_MAJOR}.${CADMESH_VERSION_MINOR}")
