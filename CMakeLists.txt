@@ -96,7 +96,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cadmesh-config.cmake.in" "${CMAKE_CU
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cadmesh-config.cmake" DESTINATION "lib/cmake/cadmesh-${CADMESH_MAJOR_VERSION}.${CADMESH_MINOR_VERSION}.${CADMESH_PATCH_VERSION}")
 
 # Install the CADMesh headers library.
-install(FILES ${PROJECT_SOURCE_DIR}/include/CADMesh.hh DESTINATION include)
+install(FILES ${headers} DESTINATION include)
 install(TARGETS cadmesh DESTINATION lib)
 
 # Install the external project headers.
