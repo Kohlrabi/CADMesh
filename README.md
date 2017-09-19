@@ -1,16 +1,29 @@
+# Notice
+This `master` branch is where development occurs. Make sure you checkout `v1.1` if your are trying to compile the latest release, or [download it from here](https://github.com/christopherpoole/CADMesh/releases/tag/v1.1).
+
+CADMesh version 2.0 is under development right now, with a new API that is much easier to use:
+
+```cpp 
+    auto mesh = CADMesh::TessellatedMesh::FromPLY("mesh.ply");
+    G4VSolid* solid = mesh->GetSolid();
+```
+
+---
+
 # Introduction
 Importing predefined CAD models into [GEANT4](http://www.geant4.org/geant4/) is not always possible or requires intermediate file format conversion to Geometry Description Markup Language (GDML) using commercial or third party software.
 CADMesh is a direct CAD model import interface for GEANT4 leveraging [ASSIMP](http://assimp.sourceforge.net/) for reading the CAD files.
 Currently it supports the import of triangular facet surface meshes defined in formats such as STL and PLY. A G4TessellatedSolid is returned and can be included in a standard user detector constructor.
 You can find the project page and a git repository [here](https://github.com/christopherpoole/CADMesh).
-The old [Google Code page for CADMesh](http://code.google.com/p/cadmesh/) is still kept up-to-date, however future developments occur here on GitHub.
+The old [Google Code page for CADMesh](http://code.google.com/p/cadmesh/) redirects to this page.
 
 ![Screen Shot](https://raw.github.com/christopherpoole/CADMesh/master/screenshot.png)
 
 Additional functionality is included for the fast navigation of tessellated solids by automatically creating equivalent tetrahedral meshes thereby making smart voxelisation available for the solid.
 
 # Citing CADMesh
-CADMesh is described in a technical paper, available [here](http://christopherpoole.github.com/A-CAD-interface-for-GEANT4/). If you would like the cite the article, you may wish use the following bibtex entry:
+CADMesh is described in a technical paper, available [here](http://www.christopherpoole.net/publications/a-cad-interface-for-geant4.html), and in this repository.
+If you would like the cite the article, you may wish use the following bibtex entry:
 
     @article{poole2012acad,
         author = {Poole, C. M. and Cornelius, I. and Trapp, J. V. and Langton, C. M.},
@@ -22,7 +35,7 @@ CADMesh is described in a technical paper, available [here](http://christopherpo
         url = {http://www.springerlink.com/content/u563877422284578}
     }
 
-The fast tessellated solid navigation technique included in CADMesh is described [here](http://christopherpoole.github.com/Fast-tessellated-solid-navigation-in-GEANT4/):
+The fast tessellated solid navigation technique included in CADMesh is described [here](http://www.christopherpoole.net/publications/fast-tessellated-solid-navigation-in-geant4.html), the paper is included in this repository as well:
 
     @article{poole2012fast,
         title={Fast Tessellated Solid Navigation in GEANT4},
@@ -34,7 +47,8 @@ The fast tessellated solid navigation technique included in CADMesh is described
         publisher={Institute of Electrical and Electronics Engineers}
     }
 
-#Example Usage
+
+# Example Usage
 The following shows basic default usage for cadmesh in a UserDetectorConstruction:
 
     // User Detector Constructor
@@ -85,8 +99,9 @@ They are included in the repository as external projects/submodules.
 # Installation
 Download the latest release of CADMesh from the [Downloads](https://github.com/christopherpoole/CADMesh/releases) section, and extract the archive, or checkout the development branch from the repository.
 
-    # CADMesh latest dev branch
+    # CADMesh latest release
     git clone https://github.com/christopherpoole/CADMesh.git
+    git checkout v1.1
 
     # OR download a release from https://github.com/christopherpoole/CADMesh/releases, and extract the download somewhere.
     
@@ -100,6 +115,7 @@ Download the latest release of CADMesh from the [Downloads](https://github.com/c
     cd build
 
     cmake .. -DCMAKE_INSTALL_PREFIX:PATH=<optional install location>
+    make
     sudo make install
 
 Here is a basic example usage. The CMakeLists.txt file illustrates how to link against CADMesh (which requires CADMesh to be installed somewhere).
@@ -111,10 +127,15 @@ Here is a basic example usage. The CMakeLists.txt file illustrates how to link a
 
     cmake .. -Dcadmesh_DIR:PATH=<cadmesh install location> 
     make
-    cd ..
 
-    ./build/cadmesh_example macros/vis.mac
+    ./cadmesh_example <macro> <cad file name> <cad file type, optional>
+    
+    # Still in the build directory:
+    ./cadmesh_example ../macros/vis.mac ../../../models/cone.ply
     Idle> exit
+
+    # To use the tetrahedram meshing as well (tetgen needs to know the file type):
+    ./cadmesh_example ../macros/vis.mac ../../../models/cone.ply PLY
 
 If you get an error such as this:
 
@@ -127,3 +148,4 @@ Make sure the CADMesh library is in your path:
 or on a Mac:
     
     export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:<cadmesh install location>/lib
+

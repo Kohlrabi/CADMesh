@@ -1,12 +1,12 @@
 ####################################################
-# GEANT4 VCGLIB/CAD INTERFACE - basic example
+# GEANT4 CAD INTERFACE - template
 #
 # File:      vis.mac
 #
 # Author:    Christopher M Poole,
 # Email:     mail@christopherpoole.net
 #
-# Date:      20th March, 2011
+# Date:      13th August, 2017
 ####################################################
 
 /control/verbose 0

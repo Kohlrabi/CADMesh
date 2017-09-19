@@ -1,12 +1,12 @@
 /* ************************************************
- * GEANT4 VCGLIB/CAD INTERFACE - basic example
+ * GEANT4 CAD INTERFACE - template
  *
  * File:      cadmesh_example.cc
  *
  * Author:    Christopher M Poole,
  * Email:     mail@christopherpoole.net
  *
- * Date:      20th March, 2011
+ * Date:      13th August, 2017
  **************************************************/
 
 // USER //
@@ -17,29 +17,15 @@
 // GEANT4 //
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
-//#include "G4UIterminal.hh"
-//#include "G4UItcsh.hh"
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
+
 
 int main(int argc, char** argv)
 {
     G4RunManager* run_manager = new G4RunManager;
 
     DetectorConstruction* detector_construction = new DetectorConstruction;
-
-    if (argc == 3) {
-        detector_construction->SetCADFilename(argv[2]);
-    } else if (argc == 4) {
-        // We must specify the file type for tetrahedral meshes.
-        detector_construction->SetCADFilename(argv[2]);
-        detector_construction->SetCADFiletype(argv[3]);
-    } else {
-        G4cout << "Usage:" << G4endl;
-        G4cout << "    cadmesh_example <macro> <cad file name> <cad file type, optional>" << G4endl;
-        return 0;
-    }
-
     run_manager->SetUserInitialization(detector_construction);
 
     PhysicsList* physics_list = new PhysicsList;
