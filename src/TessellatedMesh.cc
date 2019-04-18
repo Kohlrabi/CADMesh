@@ -12,110 +12,111 @@
 // CADMesh //
 #include "TessellatedMesh.hh"
 
+// GEANT4 //
+#include "G4UIcommand.hh"
+#include "Randomize.hh"
+
 
 namespace CADMesh
 {
 
-TessellatedMesh::TessellatedMesh(const aiScene* /*scene_*/)
+G4VSolid* TessellatedMesh::GetSolid()
 {
-    Init();
-    //this->scene__ = scene_;
+    return (G4VSolid*) GetTessellatedSolid();
 }
 
 
-TessellatedMesh::~TessellatedMesh()
+G4VSolid* TessellatedMesh::GetSolid(G4int index)
 {
+    return (G4VSolid*) GetTessellatedSolid(index);
 }
 
 
-G4TessellatedSolid* TessellatedMesh::GetSolid()
+G4VSolid* TessellatedMesh::GetSolid(G4String name)
 {
-    return GetSolid(0);
+    return (G4VSolid*) GetTessellatedSolid(name);
 }
 
 
-G4TessellatedSolid* TessellatedMesh::GetSolid(G4int index)
+G4AssemblyVolume* TessellatedMesh::GetAssembly()
 {
-    Assimp::Importer importer;
-    
-    scene_ = importer.ReadFile(file_name_,
-            aiProcess_Triangulate           |
-            aiProcess_JoinIdenticalVertices |
-            aiProcess_CalcTangentSpace);
-
-    if (!scene_) {
-        G4Exception("TessellatedMesh::TessellatedMesh", "The mesh cannot be loaded.",
-                    FatalException, "The file may not exist.");
+    if (assembly_)
+    {
+        return assembly_;
     }
 
-    mesh_ = scene_->mMeshes[index];
-
-    auto volume_solid = new G4TessellatedSolid(file_name_);
-
-    G4ThreeVector point_1;
-    G4ThreeVector point_2;
-    G4ThreeVector point_3;
-
-    for(unsigned int i=0; i < mesh_->mNumFaces; i++)
+    for (auto mesh : reader_->GetMeshes())
     {
-        const aiFace& face = mesh_->mFaces[i];
+        auto solid = GetTessellatedSolid(mesh); 
 
-        point_1.setX(mesh_->mVertices[face.mIndices[0]].x * scale_ + offset_.x());
-        point_1.setY(mesh_->mVertices[face.mIndices[0]].y * scale_ + offset_.y());
-        point_1.setZ(mesh_->mVertices[face.mIndices[0]].z * scale_ + offset_.z());
+        // TODO: Determine the material for this solid.
+        G4Material* material = nullptr;
 
-        point_2.setX(mesh_->mVertices[face.mIndices[1]].x * scale_ + offset_.x());
-        point_2.setY(mesh_->mVertices[face.mIndices[1]].y * scale_ + offset_.y());
-        point_2.setZ(mesh_->mVertices[face.mIndices[1]].z * scale_ + offset_.z());
+        auto logical = new G4LogicalVolume( solid
+                                          , material 
+                                          , mesh->GetName() + "_logical"
+        );
 
-        point_3.setX(mesh_->mVertices[face.mIndices[2]].x * scale_ + offset_.x());
-        point_3.setY(mesh_->mVertices[face.mIndices[2]].y * scale_ + offset_.y());
-        point_3.setZ(mesh_->mVertices[face.mIndices[2]].z * scale_ + offset_.z());
-        
-        G4TriangularFacet * facet;
-        if (reverse_ == false) {
-            facet = new G4TriangularFacet(point_1, point_2, point_3, ABSOLUTE);
-        } else {
-            facet = new G4TriangularFacet(point_2, point_1, point_3, ABSOLUTE);
+        G4ThreeVector position = G4ThreeVector();
+        G4RotationMatrix* rotation = new G4RotationMatrix();
+
+        assembly_->AddPlacedVolume(logical, position, rotation);
+    }
+
+    return assembly_;    
+}
+
+
+G4TessellatedSolid* TessellatedMesh::GetTessellatedSolid()
+{
+    return GetTessellatedSolid(0);
+}
+
+
+G4TessellatedSolid* TessellatedMesh::GetTessellatedSolid(G4int index)
+{
+    auto mesh = reader_->GetMesh(index);
+
+    return GetTessellatedSolid(mesh);
+}
+
+
+G4TessellatedSolid* TessellatedMesh::GetTessellatedSolid(G4String /*name*/)
+{
+    // TODO: Get the tesselated solid by name.
+
+    return nullptr;
+}
+
+
+G4TessellatedSolid* TessellatedMesh::GetTessellatedSolid(
+        std::shared_ptr<Mesh> mesh)
+{
+    auto volume_solid = new G4TessellatedSolid(mesh->GetName());
+
+    for(auto triangle : mesh->GetTriangles())
+    {
+        if (reverse_)
+        {
+            volume_solid->AddFacet((G4VFacet*) triangle->GetFlippedFacet());
         }
-        volume_solid->AddFacet((G4VFacet*) facet);
+       
+        else
+        {
+            volume_solid->AddFacet((G4VFacet*) triangle);
+        }
     }
 
     volume_solid->SetSolidClosed(true);
-
+    /*
     if (volume_solid->GetNumberOfFacets() == 0) {
-        G4Exception("TessellatedMesh::TessellatedMesh", "Loaded mesh has 0 faces.",
-                    FatalException, "The file may be empty.");
-        return 0;
+        G4Exception( "TessellatedMesh::GetTessellatedSolid", "The loaded mesh has 0 faces."
+                   , FatalException, "The file may be empty.");
+        return nullptr;
     }
-
+    */
     return volume_solid;
 }
 
-
-G4TessellatedSolid* TessellatedMesh::GetSolid(G4String name_)
-{
-    if (!scene_) {
-        Assimp::Importer importer;
-        
-        scene_ = importer.ReadFile(file_name_,
-                aiProcess_Triangulate           |
-                aiProcess_JoinIdenticalVertices |
-                aiProcess_CalcTangentSpace);
-    }
-
-    for (unsigned int index = 0; index < scene_->mNumMeshes; index++) {
-        aiMesh* mesh = scene_->mMeshes[index];
-
-        if (strcmp(mesh->mName.C_Str(), name_.c_str()))
-            return GetSolid(index);
-    }
-
-    G4Exception("TessellatedMesh::TessellatedMesh", "Mesh not found.",
-                FatalException, "The mesh may not exist in the file.");
-
-    return nullptr;
-}  
-
-}
+} // CADMesh namespace
 

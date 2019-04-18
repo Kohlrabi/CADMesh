@@ -36,29 +36,19 @@ namespace CADMesh
 class TetrahedralMesh : public CADMeshTemplate<TetrahedralMesh>
 {
   public:
-    TetrahedralMesh()
-    {
-        TetrahedralMesh("");
-    };
-
-    TetrahedralMesh(G4String file_name)
-        : CADMeshTemplate<TetrahedralMesh>(file_name)
-    {
-        TetrahedralMesh(file_name, "");
-    };
-
-    TetrahedralMesh(G4String file_name, G4String file_type)
-        : CADMeshTemplate<TetrahedralMesh>(file_name, file_type)
-    {
-        in = std::make_shared<tetgenio>();
-        out = std::make_shared<tetgenio>();
-    };
-
+    using CADMeshTemplate::CADMeshTemplate;
+    
+    TetrahedralMesh();
     ~TetrahedralMesh();
   
   public:
+    G4VSolid* GetSolid();
+    G4VSolid* GetSolid(G4int index);
+    G4VSolid* GetSolid(G4String name);
+
     G4AssemblyVolume* GetAssembly();
 
+  public:
     void SetMaterial(G4Material* material) {
         this->material_ = material;
     };
@@ -76,11 +66,11 @@ class TetrahedralMesh : public CADMeshTemplate<TetrahedralMesh>
     };
 
     std::shared_ptr<tetgenio> GetTetgenInput() {
-        return in;
+        return in_;
     };
 
     std::shared_ptr<tetgenio> GetTetgenOutput() {
-        return out;
+        return out_;
     };
 
   private:
@@ -88,10 +78,11 @@ class TetrahedralMesh : public CADMeshTemplate<TetrahedralMesh>
     G4ThreeVector GetTetPoint(G4int index_offset);
  
   private:
-    std::shared_ptr<tetgenio> in;
-    std::shared_ptr<tetgenio> out;
+    std::shared_ptr<tetgenio> in_ = nullptr;
+    std::shared_ptr<tetgenio> out_ = nullptr;
 
     G4double quality_;
+
     G4Material* material_;
 };
 

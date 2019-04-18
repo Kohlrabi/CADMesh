@@ -66,12 +66,29 @@ else()
     include_directories(${PROJECT_BINARY_DIR}/include/assimp/include)
 endif()
 
+# Catch unit testing library
+option(WITH_TESTS "WITH_TESTS" OFF)
+if(${WITH_TESTS} MATCHES "ON")
+    ExternalProject_Add(
+        catch_external
+        SOURCE_DIR ${PROJECT_SOURCE_DIR}/external/catch
+        GIT_REPOSITORY https://github.com/philsquared/Catch.git
+        GIT_TAG v1.10.0
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR} -DNO_SELFTEST=ON
+    )
+    include_directories(${PROJECT_BINARY_DIR}/include/catch)
+endif()
+
 # CADMesh
+set(DEFAULT_READER "ASSIMP" CACHE STRING "The CAD file reader to use by default.")
+configure_file(${PROJECT_SOURCE_DIR}/include/Configuration.hh.in "${CMAKE_CURRENT_BINARY_DIR}/include/Configuration.hh" @ONLY)
+
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${CMAKE_INSTALL_PREFIX}/include)
+include_directories(${PROJECT_BINARY_DIR}/include)
 
 # Set up the target.
 add_library(cadmesh "SHARED" ${sources} ${headers}) 
@@ -97,8 +114,9 @@ target_link_libraries(cadmesh ${Geant4_LIBRARIES})
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cadmesh-config.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/cadmesh-config.cmake" @ONLY IMMEDIATE)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cadmesh-config.cmake" DESTINATION "lib/cmake/cadmesh-${CADMESH_MAJOR_VERSION}.${CADMESH_MINOR_VERSION}.${CADMESH_PATCH_VERSION}")
 
-# Install the CADMesh headers library.
-install(FILES ${headers} DESTINATION include)
+# Install the CADMesh headers and library.
+install(FILES ${PROJECT_SOURCE_DIR}/include/CADMesh.hh DESTINATION include)
+install(FILES ${PROJECT_BINARY_DIR}/include/Configuration.hh DESTINATION include)
 install(TARGETS cadmesh DESTINATION lib)
 
 # Install the external project headers.
@@ -120,4 +138,29 @@ set(CPACK_PACKAGE_VERSION_MINOR ${CADMESH_MINOR_VERSION})
 set(CPACK_PACKAGE_VERSION_PATCH ${CADMESH_PATCH_VERSION})
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)
 include(CPack)
+
+# Tests
+if(${WITH_TESTS} MATCHES "ON")
+    enable_testing()
+
+    add_executable(CADMeshTests tests/CADMeshTests.cc)
+    add_dependencies(CADMeshTests catch_external)
+    target_link_libraries(CADMeshTests cadmesh)
+    add_test(NAME CADMeshTests COMMAND CADMeshTests)
+
+    add_executable(ValidTessellatedMeshTests tests/ValidTessellatedMeshTests.cc)
+    add_dependencies(ValidTessellatedMeshTests catch_external)
+    target_link_libraries(ValidTessellatedMeshTests cadmesh)
+    add_test(NAME ValidTessellatedMeshTests COMMAND ValidTessellatedMeshTests)
+
+    add_executable(InvalidTessellatedMeshTests tests/InvalidTessellatedMeshTests.cc)
+    add_dependencies(InvalidTessellatedMeshTests catch_external)
+    target_link_libraries(InvalidTessellatedMeshTests cadmesh)
+    add_test(NAME InvalidTessellatedMeshTests COMMAND InvalidTessellatedMeshTests)
+
+    add_test(NAME BasicExample COMMAND examples/basic/cadmesh_example
+                                       ${PROJECT_SOURCE_DIR}/examples/basic/macros/vis.mac
+                                       ${PROJECT_SOURCE_DIR}/examples/basic/cone.ply
+                                       PLY)
+endif()
 

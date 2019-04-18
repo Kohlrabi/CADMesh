@@ -1,0 +1,4 @@
+#include "@DEFAULT_READER@Reader.hh"
+
+#define CADMESH_DEFAULT_READER File::@DEFAULT_READER@()
+

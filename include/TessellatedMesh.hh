@@ -37,29 +37,19 @@ namespace CADMesh
 
 class TessellatedMesh : public CADMeshTemplate<TessellatedMesh>
 {
-  public:
-    TessellatedMesh()
-        : CADMeshTemplate<TessellatedMesh>()
-    {
-    };
-
-    TessellatedMesh(G4String file_name)
-        : CADMeshTemplate<TessellatedMesh>(file_name)
-    {
-    };
-
-    TessellatedMesh(G4String file_name, G4String file_type)
-        : CADMeshTemplate<TessellatedMesh>(file_name, file_type)
-    {
-    };
-
-    TessellatedMesh(const aiScene* scene);
-    ~TessellatedMesh();
+  using CADMeshTemplate::CADMeshTemplate;
 
   public:
-    G4TessellatedSolid* GetSolid();
-    G4TessellatedSolid* GetSolid(G4int index);
-    G4TessellatedSolid* GetSolid(G4String name);
+    G4VSolid* GetSolid();
+    G4VSolid* GetSolid(G4int index);
+    G4VSolid* GetSolid(G4String name);
+
+    G4TessellatedSolid* GetTessellatedSolid();
+    G4TessellatedSolid* GetTessellatedSolid(G4int index);
+    G4TessellatedSolid* GetTessellatedSolid(G4String name);
+    G4TessellatedSolid* GetTessellatedSolid(std::shared_ptr<Mesh> mesh);
+
+    G4AssemblyVolume* GetAssembly();
 
   public:
     void SetReverse(G4bool reverse) {
@@ -69,11 +59,8 @@ class TessellatedMesh : public CADMeshTemplate<TessellatedMesh>
     G4bool GetReverse() {
         return this->reverse_;
     };
-
+    
   private:
-    const aiScene* scene_;
-    aiMesh* mesh_;
-
     G4bool reverse_;
 };
 
