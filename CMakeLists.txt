@@ -108,6 +108,9 @@ install(DIRECTORY ${CMAKE_BINARY_DIR}/lib/ DESTINATION lib)
 # Build the examples as well.
 add_subdirectory(${PROJECT_SOURCE_DIR}/examples/basic)
 
+# Build the examples as well.
+add_subdirectory(${PROJECT_SOURCE_DIR}/examples/cad2gdml)
+
 # Set CPack to build an archive.
 set(CPACK_GENERATOR "TGZ")
 set(CPACK_PACKAGE_NAME "cadmesh")
